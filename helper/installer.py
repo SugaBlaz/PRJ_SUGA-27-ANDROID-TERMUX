@@ -34,33 +34,37 @@ def set_dirs(
     LIB_FILE_HTTP = libfilehttp
 
 def verify_android_environment():
-    """Ensure the script is running on Android/Termux with Clang available."""
-
-    # 1. Fallback check for basic Linux/Android platform structure
+    """Bypass Xiaomi HyperOS/MIUI storage restrictions to verify Termux."""
+    
+    # 1. Fallback system platform check
     if sys.platform != "linux":
         raise RuntimeError(
             "This native installer is intended for Android/Termux."
         )
 
-    # 2. RELIABLE TERMUX DETECTION: Check for Termux environment variable or prefix path
-    is_termux = "TERMUX_VERSION" in os.environ or os.path.exists("/data/data/com.termux/files/usr/bin")
+    # 2. BULLETPROOF REDMI/XIAOMI DETECTION: Check Termux internal data storage structure
+    # This path is entirely managed inside the Termux sandbox and cannot be blocked by MIUI/HyperOS
+    termux_internal_prefix = "/data/data/com.termux/files/usr/bin"
+    termux_env_present = "TERMUX_VERSION" in os.environ
     
-    # Optional fallback check for standard Android environments if not in Termux
-    is_generic_android = os.path.exists("/system/bin/app_process") if hasattr(os, "access") else False
+    # Check if we are physically running inside the Termux folder hierarchy
+    is_in_termux_path = any(
+        "com.termux" in path for path in [os.getcwd(), sys.executable, os.path.expanduser("~")]
+    )
 
-    if not (is_termux or is_generic_android):
+    if not (termux_env_present or os.path.exists(termux_internal_prefix) or is_in_termux_path):
         raise RuntimeError(
             "Android environment not detected. "
             "Please run this installer inside Termux on Android."
         )
 
-    # 3. Check for the compiler
-    if not shutil.which("clang"):
+    # 3. Check for Clang using Termux absolute path fallbacks
+    clang_path = shutil.which("clang") or os.path.join(termux_internal_prefix, "clang")
+    if not os.path.exists(clang_path) if clang_path else False:
         raise RuntimeError(
             "Clang compiler not found! "
             "Run 'pkg install clang' in Termux first."
         )
-
 
 def compile_c_module(c_source: str, lib_target: str, module_name: str):
     verify_android_environment()
