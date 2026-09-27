@@ -13,9 +13,6 @@ C_FILE_WIFI = None
 C_FILE_HTTP = None
 LIB_FILE_HTTP = None
 
-C_FILE_PORT = None
-LIB_FILE_PORT = None
-
 TERMINAL = None
 
 class TestResult(ctypes.Structure):
@@ -39,10 +36,10 @@ def log(msg: str):
 # C progress callback signature: void callback(int delta)
 PROGRESS_CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_int)
 
-def set_dirs(cfilewifi, libfilewifi, cfilehttp, libfilehttp, cfilepport, libfileport):
-    global LIB_FILE_WIFI, C_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP, C_FILE_PORT, LIB_FILE_PORT
+def set_dirs(cfilewifi, libfilewifi, cfilehttp, libfilehttp):
+    global LIB_FILE_WIFI, C_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP
 
-    C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP, C_FILE_PORT, LIB_FILE_PORT = cfilewifi, libfilewifi, cfilehttp, libfilehttp, cfilepport, libfileport
+    C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP = cfilewifi, libfilewifi, cfilehttp, libfilehttp
 
 def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
     """Launches a HTTP/HTTPS DoS attack against an website."""
