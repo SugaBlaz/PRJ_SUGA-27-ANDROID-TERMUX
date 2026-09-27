@@ -4,6 +4,7 @@ import ctypes
 from tqdm import tqdm
 import time
 from blessed import Terminal
+import helper.network as network
 
 term = Terminal()
 
@@ -115,7 +116,6 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
     log("[!] DoS HTTP Attack execution completed.")
 
 def DOS_WIFI(
-    ip: str,
     port: int,
     max_i: int,
     payload_bytes: int
@@ -148,18 +148,16 @@ def DOS_WIFI(
 
     if needs_recompile:
         log(
-            "[!!] FATAL ERROR: The native WIFI engine is "
+            "[!!] FATAL ERROR: The native WiFi engine is "
             "outdated or not compiled. Run download_dependencies() first."
         )
         return -1
 
+   ip = network.get_piblic_ip()
+
     # ---------------------------------------------------------
     # Basic validation
     # ---------------------------------------------------------
-
-    if not ip:
-        log("[!] Invalid target IP.")
-        return -1
 
     if port < 1 or port > 65535:
         log("[!] Invalid port.")
