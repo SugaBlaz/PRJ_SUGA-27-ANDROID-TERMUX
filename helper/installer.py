@@ -36,22 +36,31 @@ def set_dirs(
 def verify_android_environment():
     """Ensure the script is running on Android/Termux with Clang available."""
 
+    # 1. Fallback check for basic Linux/Android platform structure
     if sys.platform != "linux":
         raise RuntimeError(
             "This native installer is intended for Android/Termux."
         )
 
-    if not os.path.exists("/system/bin/app_process"):
+    # 2. RELIABLE TERMUX DETECTION: Check for Termux environment variable or prefix path
+    is_termux = "TERMUX_VERSION" in os.environ or os.path.exists("/data/data/com.termux/files/usr/bin")
+    
+    # Optional fallback check for standard Android environments if not in Termux
+    is_generic_android = os.path.exists("/system/bin/app_process") if hasattr(os, "access") else False
+
+    if not (is_termux or is_generic_android):
         raise RuntimeError(
             "Android environment not detected. "
             "Please run this installer inside Termux on Android."
         )
 
+    # 3. Check for the compiler
     if not shutil.which("clang"):
         raise RuntimeError(
             "Clang compiler not found! "
             "Run 'pkg install clang' in Termux first."
         )
+
 
 def compile_c_module(c_source: str, lib_target: str, module_name: str):
     verify_android_environment()
@@ -132,6 +141,7 @@ def check_and_rebuild(c_source: str, lib_target: str, module_name: str):
         compile_c_module(c_source, lib_target, module_name)
 
 def download_dependencies():
+    """Complies the native C modules."""
     # 1. WiFi Packet Module
     if C_FILE_WIFI and os.path.exists(C_FILE_WIFI):
         check_and_rebuild(C_FILE_WIFI, LIB_FILE_WIFI, "WiFi DoS Module")
