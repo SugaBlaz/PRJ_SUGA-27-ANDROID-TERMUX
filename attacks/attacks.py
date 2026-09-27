@@ -114,14 +114,14 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
     log(f"[+] Throughput:           {rps:,.2f} Req/Sec")
     log("[!] DoS HTTP Attack execution completed.")
 
-def STRESS_WIFI(
+def DOS_WIFI(
     ip: str,
     port: int,
     max_i: int,
     payload_bytes: int
 ):
     """
-    Launch the native WiFi packet test.
+    Launches a DoS WiFi attack against a router. (Needs to be connected to router)
 
     Returns:
         0 = completed normally
