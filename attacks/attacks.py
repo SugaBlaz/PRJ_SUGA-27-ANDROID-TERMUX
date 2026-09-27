@@ -153,7 +153,7 @@ def DOS_WIFI(
         )
         return -1
 
-   ip = network.get_piblic_ip()
+    ip = network.get_public_ip()
 
     # ---------------------------------------------------------
     # Basic validation
