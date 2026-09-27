@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 import shutil
+import platform
 
 C_FILE_WIFI = None
 LIB_FILE_WIFI = None
@@ -34,33 +35,42 @@ def set_dirs(
     LIB_FILE_HTTP = libfilehttp
 
 def verify_android_environment():
-    """Bypass Xiaomi HyperOS/MIUI storage restrictions to verify Termux."""
-    
-    # 1. Fallback system platform check
-    if sys.platform != "linux":
+    """Bypass strict sys.platform blocks to verify the Android/Termux environment."""
+
+    # 1. Broadly check for Linux kernel signs via platform.system() or environment variables
+    # This acts as a fallback if sys.platform is acting weird on your Redmi
+    is_linux_like = (
+        sys.platform == "linux" 
+        or platform.system().lower() == "linux"
+        or "ANDROID_DATA" in os.environ
+    )
+
+    if not is_linux_like:
+        # Let's see what it is actually evaluating to debug if it fails
         raise RuntimeError(
-            "This native installer is intended for Android/Termux."
+            f"This native installer is intended for Android/Termux. "
+            f"(Detected platform string: '{sys.platform}', System: '{platform.system()}')"
         )
 
-    # 2. BULLETPROOF REDMI/XIAOMI DETECTION: Check Termux internal data storage structure
-    # This path is entirely managed inside the Termux sandbox and cannot be blocked by MIUI/HyperOS
+    # 2. BULLETPROOF TERMUX DETECTION: Look for sandboxed Termux footprints
     termux_internal_prefix = "/data/data/com.termux/files/usr/bin"
     termux_env_present = "TERMUX_VERSION" in os.environ
     
-    # Check if we are physically running inside the Termux folder hierarchy
+    # Check if Termux storage system or standard Android environment variables exist
     is_in_termux_path = any(
         "com.termux" in path for path in [os.getcwd(), sys.executable, os.path.expanduser("~")]
     )
+    has_android_paths = "ANDROID_ROOT" in os.environ or "ANDROID_DATA" in os.environ
 
-    if not (termux_env_present or os.path.exists(termux_internal_prefix) or is_in_termux_path):
+    if not (termux_env_present or os.path.exists(termux_internal_prefix) or is_in_termux_path or has_android_paths):
         raise RuntimeError(
             "Android environment not detected. "
             "Please run this installer inside Termux on Android."
         )
 
-    # 3. Check for Clang using Termux absolute path fallbacks
+    # 3. Check for Clang using standard lookups and fallback absolute paths
     clang_path = shutil.which("clang") or os.path.join(termux_internal_prefix, "clang")
-    if not os.path.exists(clang_path) if clang_path else False:
+    if not (clang_path and os.path.exists(clang_path) or shutil.which("clang")):
         raise RuntimeError(
             "Clang compiler not found! "
             "Run 'pkg install clang' in Termux first."
