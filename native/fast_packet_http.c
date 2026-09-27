@@ -575,27 +575,27 @@ EXPORT TestResult run_http_stress_test(const char *url, int total_requests, int 
                 dns_res->ai_addr,
                 dns_res->ai_addrlen
             );
-
+    
             args[i].addr_len = dns_res->ai_addrlen;
             args[i].family = dns_res->ai_family;
             args[i].socktype = dns_res->ai_socktype;
             args[i].protocol = dns_res->ai_protocol;
-
+    
             memcpy(
                 args[i].request_buffer,
                 prebaked_req,
                 prebaked_len + 1
             );
-
+    
             args[i].req_len = prebaked_len;
-
+    
             args[i].requests_per_thread =
                 base_requests + (i < remainder ? 1 : 0);
-
+    
             args[i].success_count = 0;
             args[i].error_count = 0;
             args[i].global_completed = &global_completed;
-
+    
             int rc = pthread_create(
                 &threads[i],
                 NULL,
@@ -607,22 +607,21 @@ EXPORT TestResult run_http_stress_test(const char *url, int total_requests, int 
                 thread_started[i] = true;
             } else {
                 /*
-                * This worker never started.
-                * Account for its work as failed so the
-                * progress counter can still reach actual_total.
-                */
+                 * This worker never started.
+                 * Account for its work as failed so the
+                 * progress counter can still reach actual_total.
+                 */
                 args[i].error_count =
                     args[i].requests_per_thread;
-
+    
                 ATOMIC_ADD(
                     &global_completed,
                     args[i].requests_per_thread
                 );
             }
         }
-    }
 
-    freeaddrinfo(dns_res); // Free DNS memory immediately
+    freeaddrinfo(dns_res);
 
     double start_time = get_current_time_sec();
 
