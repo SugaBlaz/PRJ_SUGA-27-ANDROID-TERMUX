@@ -11,7 +11,7 @@ def get_public_ip():
         response = requests.get('https://api.ipify.org')
         return response.text
     except requests.RequestException as e:
-        return f"Error: {e}"
+        return "127.0.0.1"
     
 def interface_exists(interface_name):
     """Checks the Linux network subsystem directly for interface presence."""
