@@ -3,7 +3,11 @@ from cli.sbcli import ModularTerminal
 
 import other.larp as larp
 import helper.installer as installer
-import attacks.attacks as attacks
+
+# Attacks
+import attacks.wifi_DoS as wifi_DoS
+import attacks.http_DoS as http_Dos
+import attacks.arp_posioner as arp_posioner
 
 # Third Party Modules
 import os
@@ -36,7 +40,8 @@ LIB_FILE_HTTP = os.path.join(
 )
 
 def set_module_dirs():
-    attacks.set_dirs(C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP)
+    wifi_DoS.set_dirs(C_FILE_WIFI, LIB_FILE_WIFI)
+    http_Dos.set_dirs(C_FILE_HTTP, LIB_FILE_HTTP)
     installer.set_dirs(C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP)
 
 def start():
@@ -44,7 +49,8 @@ def start():
     set_module_dirs()
     
     # Initialize loggings bridge
-    attacks.init(sbcli)
+    wifi_DoS.init(sbcli)
+    http_Dos.init(sbcli)
     installer.init(sbcli)
 
     # Register commands
@@ -56,14 +62,20 @@ def start():
     
     sbcli.create_command(
         "DoS-WiFi",
-        attacks.DOS_WIFI,
+        wifi_DoS.DOS_WIFI,
         aliases=["wifiDoS", "doswifi", "wifidos"]
     )
     
     sbcli.create_command(
         "DoS-HTTP/S",
-        attacks.DOS_HTTP,
+        http_Dos.DOS_HTTP,
         aliases=["httpDoS", "doshttp", "httpdos"]
+    )
+    
+    sbcli.create_command(
+        "ARP-poison",
+        arp_posioner.ARP_POISON,
+        aliases=["ARP-spoof", "wifispoof", "killwifi"]
     )
     
     sbcli.create_command(

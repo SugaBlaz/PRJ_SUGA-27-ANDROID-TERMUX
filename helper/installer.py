@@ -150,7 +150,7 @@ def check_and_rebuild(c_source: str, lib_target: str, module_name: str):
                 os.remove(lib_target)
             except PermissionError:
                 log(f"[-] Error: Could not delete native library '{lib_target}' (file in use).")
-                sys.exit(1)
+                return
 
         compile_c_module(c_source, lib_target, module_name)
 
