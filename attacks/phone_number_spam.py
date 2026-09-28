@@ -628,12 +628,6 @@ def info_system():
         f"CPU       : {os.cpu_count()} core",
         f"Public IP : {network.get_public_ip()}",
     ]
-    try:
-        import psutil
-        mem = psutil.virtual_memory()
-        rows.append(f"RAM       : {mem.percent}% ({mem.used // (1024**3)}GB/{mem.total // (1024**3)}GB)")
-    except ImportError:
-        pass
     for row in rows:
         print(f"{LINE}│ {TXT}{row:<57}{TXT}{LINE}│{Style.RESET_ALL}")
     print(f"{LINE}╰{'─' * 58}╯{Style.RESET_ALL}")
