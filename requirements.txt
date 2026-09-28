@@ -1,2 +1,3 @@
 blessed==1.50.0
+Requests==2.34.2
 tqdm==4.70.0
