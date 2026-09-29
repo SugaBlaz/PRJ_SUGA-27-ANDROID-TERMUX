@@ -537,21 +537,11 @@ EXPORT TestResult run_http_stress_test(const char *url, int total_requests, int 
 
     _Atomic int64_t global_completed = 0;
 
-    static const char *HTTP_FORMAT = 
-             "GET %s HTTP/1.1\r\n"
-             "Host: %s\r\n"
-             "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\r\n"
-             "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8\r\n"
-             "Accept-Language: en-US,en;q=0.9\r\n"
-             "Sec-Ch-Ua: \"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"\r\n"
-             "Sec-Ch-Ua-Mobile: ?0\r\n"
-             "Sec-Ch-Ua-Platform: \"Windows\"\r\n"
-             "Sec-Fetch-Dest: document\r\n"
-             "Sec-Fetch-Mode: navigate\r\n"
-             "Sec-Fetch-Site: none\r\n"
-             "Sec-Fetch-User: ?1\r\n"
-             "Upgrade-Insecure-Requests: 1\r\n"
-             "Connection: keep-alive\r\n\r\n";
+    static const char *HTTP_FORMAT =
+        "GET %s HTTP/1.1\r\n"
+        "Host: %s\r\n"
+        "Connection: close\r\n"
+        "\r\n";
 
     char prebaked_req[2048];
     

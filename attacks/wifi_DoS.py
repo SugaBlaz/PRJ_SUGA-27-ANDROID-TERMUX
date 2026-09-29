@@ -114,7 +114,7 @@ def DOS_WIFI(
         )
     except OSError as exc:
         log(f"[!] Failed to load WIFI native library: {exc}")
-        return -1
+        return 
 
     # ---------------------------------------------------------
     # Configure C function
@@ -147,7 +147,8 @@ def DOS_WIFI(
         # Normally the C SIGINT handler catches Ctrl+C first.
         # This is just a fallback.
         log("[!] Keyboard interrupt received.")
-        return 1
+        
+        return
 
     # ---------------------------------------------------------
     # Handle C return code
