@@ -8,7 +8,6 @@ import helper.installer as installer
 import attacks.wifi_DoS as wifi_DoS
 import attacks.http_DoS as http_Dos
 import attacks.arp_posioner as arp_posioner
-import attacks.phone_number_spam as otp_spam
 
 # Third Party Modules
 import os
@@ -83,12 +82,6 @@ def start():
         "install_dependencies",
         installer.download_dependencies,
         aliases=["download_dependencies", "downloaddep", "installdep"]
-    )
-
-    sbcli.create_command(
-        "spam-otp",
-        otp_spam.init,
-        aliases=["pnspam", "s31", "otpspam"]
     )
     
     sbcli.run_loop()
