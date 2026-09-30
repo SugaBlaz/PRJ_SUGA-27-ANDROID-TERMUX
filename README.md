@@ -40,18 +40,6 @@ Python module
 
 This allows PRJ_SUGA-27 to combine Python's flexibility with native-code performance.
 
-🤖 SugaAI
-
-PRJ_SUGA-27 also includes an AI chatbot module designed to work directly from the CLI.
-
-The AI module can be configured to use an NVIDIA NIM-compatible API endpoint.
-
-Example:
-
-SugaAI> Hello!
-
-AI functionality requires its corresponding API configuration.
-
 ---
 
 📱 Android / Termux
