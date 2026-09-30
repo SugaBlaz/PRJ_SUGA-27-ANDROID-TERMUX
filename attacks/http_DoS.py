@@ -88,19 +88,13 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
 
     start_time = time.time()
 
-    try:
-        # Invoke native C function
-        result = http_lib.run_http_stress_test(
-            target_url.encode("utf-8"),
-            actual_total,
-            num_threads,
-            c_progress_cb
-        )
-    except KeyboardInterrupt:
-        # Normally the C SIGINT handler catches Ctrl+C first.
-        # This is just a fallback.
-        log("[!] Keyboard interrupt received.")
-        return 1
+    # Invoke native C function
+    result = http_lib.run_http_stress_test(
+        target_url.encode("utf-8"),
+        actual_total,
+        num_threads,
+        c_progress_cb
+    )
 
     pbar.close()
 
