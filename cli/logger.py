@@ -5,9 +5,9 @@ import sys
 import time
 from blessed import Terminal
 
+from cli.config_saver import save_config, load_config
+
 term = Terminal()
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 
 chosen_color = "green"
 color = term.green
@@ -19,30 +19,25 @@ VALID_COLORS = {
     "gray", "grey"
 }
 
-def load_config():
+def log_load_config():
     """Loads configuration settings from the JSON file if it exists."""
     global chosen_color, color
-    if os.path.exists(CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                loaded_theme = data.get("theme", "green")
-                if loaded_theme in VALID_COLORS and hasattr(term, loaded_theme):
-                    chosen_color = loaded_theme
-                    color = getattr(term, chosen_color)
-        except Exception as e:
-            print(f"[-] Error loading config file: {e}", flush=True)
-
-
-def save_config():
-    """Saves current CLI settings to the JSON file."""
-    data = {"theme": chosen_color}
+    
     try:
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+        data = load_config()
+        
+        if data:
+            loaded_theme = data.get("theme", "green")
+            if loaded_theme in VALID_COLORS and hasattr(term, loaded_theme):
+                chosen_color = loaded_theme
+                color = getattr(term, chosen_color)
     except Exception as e:
-        print(f"[-] Failed to save configuration: {e}", flush=True)
-
+        print(f"[-] Error loading config file: {e}", flush=True)
+            
+def log_save_config():
+    data = {"theme": chosen_color}
+    
+    save_config(data, append=True)
 
 def change_theme(theme: str):
     """Changes the CLI's theme to a given color and persists it to config.json."""
@@ -52,11 +47,12 @@ def change_theme(theme: str):
     if theme in VALID_COLORS and hasattr(term, theme):
         chosen_color = theme
         color = getattr(term, chosen_color)
-        save_config()
+        
+        log_save_config()
+        
         log(f"[+] Theme successfully changed to '{theme}' and saved.")
     else:
         log("[-] The color selected does not exist or is unsupported.")
-
 
 def typewriter_log(text: str, active_color, delay: float = 0.04, end: str = "\n"):
     """Applies color per character to prevent ANSI escape sequences from breaking across lines."""
@@ -66,7 +62,6 @@ def typewriter_log(text: str, active_color, delay: float = 0.04, end: str = "\n"
         time.sleep(delay)
     sys.stdout.write(end)
     sys.stdout.flush()
-
 
 def log(text="", delay=None, end="\n"):
     """Logs colored text with prompt-safe ANSI handling and immediate flushing."""
@@ -95,5 +90,4 @@ def log(text="", delay=None, end="\n"):
             sys.stdout.write(f"{text}{end}")
             sys.stdout.flush()
 
-
-load_config()
+log_load_config()

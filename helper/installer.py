@@ -11,6 +11,15 @@ LIB_FILE_HTTP = None
 
 TERMINAL = None
 
+SSL_REQUIRED = {
+    "httpS DoS Module"
+}
+
+PTHREAD_REQUIRED = {
+    "httpS DoS Module",
+    "WiFI DoS Module",
+}
+
 def log(msg: str):
     """Safely logs to terminal instance or stdout fallback."""
     if TERMINAL and hasattr(TERMINAL, "_log"):
@@ -27,12 +36,16 @@ def set_dirs(
     libfilewifi,
     cfilehttp,
     libfilehttp,
+    cfilearp,
+    libfilearp,
 ):
-    global C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP
+    global C_FILE_WIFI, LIB_FILE_WIFI, C_FILE_HTTP, LIB_FILE_HTTP, C_FILE_ARP, LIB_FILE_ARP
     C_FILE_WIFI = cfilewifi
     LIB_FILE_WIFI = libfilewifi
     C_FILE_HTTP = cfilehttp
     LIB_FILE_HTTP = libfilehttp
+    C_FILE_ARP = cfilearp
+    LIB_FILE_ARP = libfilearp
 
 def verify_android_environment():
     """Bypass strict sys.platform blocks to verify the Android/Termux environment."""
@@ -69,12 +82,47 @@ def verify_android_environment():
         )
 
     # 3. Check for Clang using standard lookups and fallback absolute paths
-    clang_path = shutil.which("clang") or os.path.join(termux_internal_prefix, "clang")
-    if not (clang_path and os.path.exists(clang_path) or shutil.which("clang")):
+    clang_path = (
+        shutil.which("clang")
+        or os.path.join(termux_internal_prefix, "clang")
+    )
+
+    if not (
+        (clang_path and os.path.exists(clang_path))
+        or shutil.which("clang")
+    ):
         raise RuntimeError(
             "Clang compiler not found! "
             "Run 'pkg install clang' in Termux first."
         )
+
+    openssl_pkg_config = shutil.which("pkg-config")
+
+    if openssl_pkg_config:
+        result = subprocess.run(
+            [openssl_pkg_config, "--exists", "openssl"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                "OpenSSL development files not found! "
+                "Run 'pkg install openssl' in Termux first."
+            )
+    else:
+        openssl_header = os.path.join(
+            termux_internal_prefix,
+            "include",
+            "openssl",
+            "ssl.h"
+        )
+
+        if not os.path.isfile(openssl_header):
+            raise RuntimeError(
+                "OpenSSL headers not found! "
+                "Run 'pkg install openssl' in Termux first."
+            )
 
 def compile_c_module(c_source: str, lib_target: str, module_name: str):
     verify_android_environment()
@@ -85,15 +133,35 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
 
     log(f"[*] Compiling {module_name} with Clang (-O3) for Android...")
 
+    termux_prefix = os.environ.get(
+        "PREFIX",
+        "/data/data/com.termux/files/usr"
+    )
+
+    flags = []
+
+    if module_name in SSL_REQUIRED:
+        flags.extend([
+            f"-I{os.path.join(termux_prefix, 'include')}",
+            f"-L{os.path.join(termux_prefix, 'lib')}",
+            "-lssl",
+            "-lcrypto",
+        ])
+    elif module_name in PTHREAD_REQUIRED:
+        flags.extend([
+            "-pthread"
+        ])
+
     # High-performance flags for ARM/Android via Clang
     base_flags = [
         "clang",
         "-O3",
         "-shared",
         "-fPIC",
-        "-pthread",
-        "-o", lib_target,
-        c_source
+        "-o", 
+        lib_target,
+        c_source,
+        *flags,
     ]
 
     try:
@@ -103,10 +171,15 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
             capture_output=True,
             text=True
         )
+
         log(f"[+] Successfully built {lib_target}")
         return
+
     except subprocess.CalledProcessError as e:
-        log(f"[!] Primary Clang compilation failed for {c_source}. Retrying with safe fallbacks...")
+        log(
+            f"[!] Primary Clang compilation failed for "
+            f"{c_source}. Retrying with safe fallbacks..."
+        )
 
     # Safe fallback compilation flags
     fallback_flags = [
@@ -115,7 +188,8 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
         "-shared",
         "-fPIC",
         "-o", lib_target,
-        c_source
+        c_source,
+        *flags,
     ]
 
     try:
@@ -125,11 +199,19 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
             capture_output=True,
             text=True
         )
-        log(f"[+] Successfully built {lib_target} using safe fallback profile.")
+
+        log(
+            f"[+] Successfully built {lib_target} "
+            f"using safe fallback profile."
+        )
+
     except subprocess.CalledProcessError as e:
         log(f"[-] Critical: Clang Compilation Failed for {c_source}!")
         log(f"[-] Error output:\n{e.stderr}")
-        raise RuntimeError(f"Failed to build C extension library: {module_name}")
+
+        raise RuntimeError(
+            f"Failed to build C extension library: {module_name}"
+        )
 
 def check_and_rebuild(c_source: str, lib_target: str, module_name: str):
     needs_recompile = False
@@ -162,6 +244,6 @@ def download_dependencies():
 
     # 2. HTTP Stress Module
     if C_FILE_HTTP and os.path.exists(C_FILE_HTTP):
-        check_and_rebuild(C_FILE_HTTP, LIB_FILE_HTTP, "HTTP DoS Module")
+        check_and_rebuild(C_FILE_HTTP, LIB_FILE_HTTP, "httpS DoS Module")
 
     log("[!] Finished checking and building native Android dependencies.")

@@ -65,3 +65,30 @@ def scan_network(iface, gateway_ip):
                         targets.append((ip, mac))
     except: pass
     return targets
+
+def check_for_updates(local_version_path) -> str:
+    repo_url = "https://raw.githubusercontent.com/SugaBlaz/PRJ_SUGA-27-ANDROID-TERMUX/refs/heads/main/other/version.txt"
+
+    try:
+        # 2. Read the local version file
+        with open(local_version_path, "r", encoding="utf-8") as f:
+            local_version = f.read().strip()
+
+        # 3. Fetch the remote version file from GitHub
+        response = requests.get(repo_url, timeout=5)
+
+        # Raise an exception for HTTP errors (like 404 or 500)
+        response.raise_for_status()
+
+        remote_version = response.text.strip()
+
+        # 4. Compare the versions
+        if local_version != remote_version:
+            return f"Update available! Local: {local_version} -> Remote: {remote_version}"
+        else:
+            return f"You are up to date! Current version: {local_version}"
+
+    except FileNotFoundError:
+        return f"Error: Local file '{local_version_path}' not found."
+    except requests.exceptions.RequestException as e:
+        return f"Error checking GitHub update: {e}"

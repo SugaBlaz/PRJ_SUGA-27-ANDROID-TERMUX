@@ -14,7 +14,6 @@ except ImportError:
 
 import cli.logger as logger
 
-
 class ModularTerminal:
     def __init__(self, prompt="sbcli: user> "):
         self.prompt = prompt
@@ -35,6 +34,7 @@ class ModularTerminal:
         self.create_command("pwd", self._print_working_directory, aliases=["gl"])
         self.create_command("sysinfo", self._system_info, aliases="info")
         self.create_command("alias", self._create_alias, aliases=["aliases", "shortcut"])
+        self.create_command("change_local_username", self.change_localuser, aliases=["changelocaluser", "localuser"])
 
         # Initialize Auto-Completion for Termux
         if readline:
@@ -328,3 +328,14 @@ class ModularTerminal:
         for i in range(0, len(themes), columns):
             row = themes[i : i + columns]
             logger.log("".join(f"{color:<16}" for color in row))
+            
+    def change_localuser(self, username: str):
+        """Changes the local username displayed in the terminal prompt."""
+        username = username.strip()
+
+        if not username:
+            logger.log("[-] Username cannot be empty.")
+            return
+
+        self.prompt = f"sbcli: {username}> "
+        logger.log(f"[+] Local user changed to '{username}'.")

