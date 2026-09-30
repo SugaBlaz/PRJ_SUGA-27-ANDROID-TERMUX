@@ -14,7 +14,7 @@ The project combines Python with native C components where performance matters, 
 
 PRJ_SUGA-27 is built around a modular architecture rather than putting everything into one giant script.
 
-🔎 Network & Security
+# 🔎 Network & Security
 
 - Network reconnaissance utilities
 - Security auditing tools
