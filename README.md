@@ -155,22 +155,6 @@ requirements.txt
 
 PRJ_SUGA-27 follows a hybrid Python/native architecture.
 
-                 PRJ_SUGA-27
-                      │
-          ┌───────────┴───────────┐
-          │                       │
-       Python                   Native C
-          │                       │
-    ┌─────┴─────┐           ┌─────┴─────┐
-    │           │           │           │
-   CLI       Modules      Networking   HTTP
-    │           │           │           │
-    └───────────┴───────────┴───────────┘
-                      │
-                    Termux
-                      │
-                    Android
-
 Python handles the primary application logic and user interface, while native C can be used for performance-sensitive operations.
 
 ---
