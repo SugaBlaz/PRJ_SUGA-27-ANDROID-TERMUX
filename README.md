@@ -1,4 +1,4 @@
-PRJ_SUGA-27
+# PRJ_SUGA-27 (ANDROID/TERMUX)
 
 🛡️ SugaBlaz Security & Networking Toolkit for Android / Termux
 
@@ -10,7 +10,7 @@ The project combines Python with native C components where performance matters, 
 
 ---
 
-✨ Features
+# ✨ Features
 
 PRJ_SUGA-27 is built around a modular architecture rather than putting everything into one giant script.
 
