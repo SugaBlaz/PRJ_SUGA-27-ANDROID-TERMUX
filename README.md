@@ -24,7 +24,7 @@ PRJ_SUGA-27 is built around a modular architecture rather than putting everythin
 - Native C networking components
 - Android/Termux compatibility support
 
-⚡ Native Performance
+# ⚡ Native Performance
 
 Performance-sensitive components can be implemented in C and compiled into shared libraries using Clang.
 
@@ -42,7 +42,7 @@ This allows PRJ_SUGA-27 to combine Python's flexibility with native-code perform
 
 ---
 
-📱 Android / Termux
+# 📱 Android / Termux
 
 This repository is the Android / Termux version of PRJ_SUGA-27.
 
@@ -63,7 +63,7 @@ Some Python packages or native components may require Android-specific adjustmen
 
 ---
 
-🚀 Installation
+# 🚀 Installation
 
 1. Install Termux
 
@@ -95,7 +95,7 @@ python main.py
 
 ---
 
-🧩 Project Structure
+# 🧩 Project Structure
 
 PRJ_SUGA-27-ANDROID-TERMUX/
 │
@@ -129,7 +129,7 @@ The repository is intentionally split into modules so individual components can 
 
 ---
 
-🛠️ Technologies
+# 🛠️ Technologies
 
 PRJ_SUGA-27 primarily uses:
 
@@ -151,7 +151,7 @@ requirements.txt
 
 ---
 
-🧠 Architecture
+# 🧠 Architecture
 
 PRJ_SUGA-27 follows a hybrid Python/native architecture.
 
@@ -175,7 +175,7 @@ Python handles the primary application logic and user interface, while native C 
 
 ---
 
-🔧 Development
+# 🔧 Development
 
 PRJ_SUGA-27 is an actively developed project.
 
@@ -197,7 +197,7 @@ clang --version
 
 ---
 
-⚠️ Compatibility Notes
+# ⚠️ Compatibility Notes
 
 Android is not simply "Linux with a phone screen."
 
@@ -213,7 +213,7 @@ PRJ_SUGA-27 therefore includes Android-specific handling where necessary.
 
 ---
 
-🔐 Ethical Use
+# 🔐 Ethical Use
 
 PRJ_SUGA-27 is intended for:
 
@@ -231,7 +231,7 @@ The author is not responsible for damage, abuse, unauthorized access, disruption
 
 ---
 
-📜 License
+# 📜 License
 
 PRJ_SUGA-27 is released under the MIT License.
 
