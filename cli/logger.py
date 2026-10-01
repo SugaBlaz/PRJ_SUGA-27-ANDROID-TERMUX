@@ -24,7 +24,7 @@ def log_load_config():
     global chosen_color, color
     
     try:
-        data = load_config()
+        data: dict = load_config()
         
         if data:
             loaded_theme = data.get("theme", "green")

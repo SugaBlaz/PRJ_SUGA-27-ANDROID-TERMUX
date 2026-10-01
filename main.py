@@ -30,7 +30,7 @@ BANNER = r"""
 
 """
 
-config = load_config()
+config: dict = load_config()
 
 username = config.get("username", "user") if config else "user"
 sbcli = ModularTerminal(prompt=f"sbcli: {username}> ")
@@ -78,9 +78,9 @@ def change_username(new_username: str):
     """Changes the username displayed in the terminal prompt and saves it to the config file."""
     
     dataToSave = {"username": new_username}
-    
-    sbcli.change_localuser(new_username)
     save_config(dataToSave, True)
+        
+    sbcli.change_localuser(new_username)
 
 def start():
     # Set Modules Directories
