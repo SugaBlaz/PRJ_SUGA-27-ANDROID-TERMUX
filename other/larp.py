@@ -123,7 +123,7 @@ def fake_compile():
     
     print("\n" + "="*65)
     print("  SUCCESS: Tool successfully compiled and deployed.")
-    print("  Local configuration locked."))
+    print("  Local configuration locked.")
     print("="*65 + "\n")
 
 def fake_progress_bar(task_name, duration=2.5):
