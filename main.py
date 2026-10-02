@@ -1,5 +1,15 @@
-# Third Party Modules (Required on start)
+# Modules (Required on start)
+from other.larp import fake_download, fake_compile, simulate_dependencies, main
 from yaspin import yaspin
+import subprocess
+
+fake_download("libnet-exploit-v4.1.2.tar.gz", 14.8)
+fake_download("sg-modules-v2.3.1.zip", 6.2)
+fake_download("open-net-v1.1.2.tar.gz", 20.7)
+simulate_dependencies()
+fake_compile()
+
+subprocess.run(["clear"])
 
 spinner = yaspin(text="Loading terminal...", color="yellow")
 spinner.start()
@@ -7,7 +17,7 @@ spinner.start()
 # main.py
 from cli.sbcli import ModularTerminal
 
-import other.larp as larp
+# Others
 from helper.network import check_for_updates
 
 # Helpers
@@ -95,7 +105,7 @@ def start():
     # Register commands
     sbcli.create_command(
         "larp",
-        larp.main,
+        main,
         aliases=["init", "setup", "protocol"]
     )
     
