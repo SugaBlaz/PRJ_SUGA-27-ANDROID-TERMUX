@@ -1,3 +1,7 @@
+# Copyright (c) 2026 SugaBlaz
+# This software is released under the MIT License.
+# https://github.com/SugaBlaz/PRJ_SUGA-27-ANDROID-TERMUX
+
 import os
 import subprocess
 import socket
