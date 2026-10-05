@@ -1,3 +1,7 @@
+# Copyright (c) 2026 SugaBlaz
+# This software is released under the MIT License.
+# https://github.com/SugaBlaz/PRJ_SUGA-27-ANDROID-TERMUX
+
 # Modules (Required on start)
 from other.larp import fake_download, fake_compile, simulate_dependencies, main
 from yaspin import yaspin
