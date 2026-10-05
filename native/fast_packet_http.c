@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2026 SugaBlaz
+ * This software is released under the MIT License.
+ * https://github.com/SugaBlaz/PRJ_SUGA-27-ANDROID-TERMUX
+ */
+
 #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
