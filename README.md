@@ -1,4 +1,4 @@
-# PRJ_SUGA-27 (ANDROID/TERMUX)
+# </> PRJ_SUGA-27 (ANDROID/TERMUX)
 
 🛡️ SugaBlaz Security & Networking Toolkit for Android / Termux
 
@@ -23,6 +23,10 @@ PRJ_SUGA-27 is built around a modular architecture rather than putting everythin
 - URL and HTTP utilities
 - Native C networking components
 - Android/Termux compatibility support
+
+# 🐍 Python Version
+
+This tool was mainly made using Python 3.15.0rc3, but older version still works for this tool.
 
 # ⚡ Native Performance
 
@@ -75,7 +79,7 @@ pkg update && pkg upgrade
 
 2. Install dependencies
 
-pkg install git python clang
+pkg install git python clang openssl openssl-tool -y
 
 3. Clone the repository
 
@@ -92,6 +96,10 @@ pip install -r requirements.txt
 5. Run PRJ_SUGA-27
 
 python main.py
+
+6. When there is a new update
+
+git pull origin main
 
 ---
 
@@ -138,12 +146,9 @@ PRJ_SUGA-27 primarily uses:
 - Clang
 - Termux
 - Android
-- Scapy
 - Blessed
+- OpenSSL
 - Requests
-- aiohttp
-- NumPy
-- pcapy-ng
 
 Additional dependencies are listed in:
 
@@ -178,6 +183,7 @@ Example:
 
 python --version
 clang --version
+openssl version
 
 ---
 
@@ -224,3 +230,5 @@ Copyright © 2026 SugaBlaz
 See ""LICENSE"" (LICENSE) for the complete license text.
 
 ---
+
+# Enjoy this tool? Star my repository! 😎

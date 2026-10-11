@@ -2,6 +2,15 @@
 # This software is released under the MIT License.
 # https://github.com/SugaBlaz/PRJ_SUGA-27-ANDROID-TERMUX
 
+# Device modules
+import sys
+import os
+
+debug_windows = True
+
+# Check if lazy imports are natively supported by the runtime environment
+lazy_imports_supported = sys.version_info >= (3, 15)
+
 # Modules (Required on start)
 from other.larp import fake_download, fake_compile, simulate_dependencies, main
 from yaspin import yaspin
@@ -13,28 +22,68 @@ fake_download("open-net-v1.1.2.tar.gz", 20.7)
 simulate_dependencies()
 fake_compile()
 
-subprocess.run(["clear"])
+if debug_windows:
+    subprocess.run(["cls"], shell=True)
+else:
+    subprocess.run(["clear"])
 
 spinner = yaspin(text="Loading terminal...", color="yellow")
 spinner.start()
 
-# main.py
-from cli.sbcli import ModularTerminal
+if lazy_imports_supported:
+    import importlib.util
 
-# Others
-from helper.network import check_for_updates
+    def lazy_load(module_name):
+        spec = importlib.util.find_spec(module_name)
+        loader = importlib.util.LazyLoader(spec.loader)
+        spec.loader = loader
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        loader.exec_module(module)
+        return module
 
-# Helpers
-import helper.installer as installer
-from cli.config_saver import save_config, load_config
+    # Lazy-loaded modules
+    sbcli = lazy_load("cli.sbcli")
+    network = lazy_load("helper.network")
+    installer = lazy_load("helper.installer")
+    config_saver = lazy_load("cli.config_saver")
+    wifi_DoS = lazy_load("attacks.wifi_DoS")
+    http_DoS = lazy_load("attacks.http_DoS")
+    arp_posioner = lazy_load("attacks.arp_posioner")
 
-# Attacks
-import attacks.wifi_DoS as wifi_DoS
-import attacks.http_DoS as http_Dos
-import attacks.arp_posioner as arp_posioner
+    # Dynamic target pointers (Mimics direct import variables cleanly)
+    ModularTerminal = sbcli.ModularTerminal
+    check_for_updates = network.check_for_updates
+    download_dependencies = installer.download_dependencies
+    set_installer_dirs = installer.set_dirs
+    installer_init = installer.init
+    save_config = config_saver.save_config
+    load_config = config_saver.load_config
+    DOS_WIFI = wifi_DoS.DOS_WIFI
+    wifi_init = wifi_DoS.init
+    set_wifi_dirs = wifi_DoS.set_dirs
+    DOS_HTTP = http_DoS.DOS_HTTP
+    http_init = http_DoS.init
+    set_http_dirs = http_DoS.set_dirs
+    ARP_POISON = arp_posioner.ARP_POISON
+    arp_init = arp_posioner.init
+    set_arp_dirs = arp_posioner.set_dirs
 
-# Third Party Modules
-import os
+else:
+    # main.py
+    from cli.sbcli import ModularTerminal
+
+    # Others
+    from helper.network import check_for_updates
+
+    # Helpers
+    from helper.installer import download_dependencies, set_dirs as set_installer_dirs, init as installer_init
+    from cli.config_saver import save_config, load_config
+
+    # Attacks
+    from attacks.wifi_DoS import DOS_WIFI, init as wifi_init, set_dirs as set_wifi_dirs
+    from attacks.http_DoS import DOS_HTTP, init as http_init, set_dirs as set_http_dirs
+    from attacks.arp_posioner import ARP_POISON, init as arp_init, set_dirs as set_arp_dirs
 
 BANNER = r"""                                                                  
                                                                         
@@ -75,11 +124,11 @@ LIB_FILE_ARP = os.path.join(
 VERSION_TXT_FILE = os.path.join(OTHER_DIR, "version.txt")
 
 def set_module_dirs():
-    wifi_DoS.set_dirs(C_FILE_WIFI, LIB_FILE_WIFI)
-    http_Dos.set_dirs(C_FILE_HTTP, LIB_FILE_HTTP)
-    arp_posioner.set_dirs(C_FILE_ARP, LIB_FILE_ARP)
+    set_wifi_dirs(C_FILE_WIFI, LIB_FILE_WIFI)
+    set_http_dirs(C_FILE_HTTP, LIB_FILE_HTTP)
+    set_arp_dirs(C_FILE_ARP, LIB_FILE_ARP)
     
-    installer.set_dirs(
+    set_installer_dirs(
         C_FILE_WIFI,
         LIB_FILE_WIFI,
         C_FILE_HTTP,
@@ -101,10 +150,10 @@ def start():
     set_module_dirs()
     
     # Initialize loggings bridge
-    wifi_DoS.init(sbcli)
-    http_Dos.init(sbcli)
-    installer.init(sbcli)
-    arp_posioner.init(sbcli)
+    wifi_init(sbcli)
+    http_init(sbcli)
+    arp_init(sbcli)
+    installer_init(sbcli)
 
     # Register commands
     sbcli.create_command(
@@ -115,25 +164,25 @@ def start():
     
     sbcli.create_command(
         "DoS-WiFi",
-        wifi_DoS.DOS_WIFI,
+        DOS_WIFI,
         aliases=["wifiDoS", "doswifi", "wifidos"]
     )
     
     sbcli.create_command(
         "DoS-HTTP/S",
-        http_Dos.DOS_HTTP,
+        DOS_HTTP,
         aliases=["httpDoS", "doshttp", "httpdos"]
     )
     
     sbcli.create_command(
         "ARP-poison",
-        arp_posioner.ARP_POISON,
-        aliases=["ARP-spoof", "wifispoof", "killwifi"]
+        ARP_POISON,
+        aliases=["ARP-spoof", "wifipoison", "killwifi", "wifispoof"]
     )
     
     sbcli.create_command(
         "install_dependencies",
-        installer.download_dependencies,
+        download_dependencies,
         aliases=["download_dependencies", "downloaddep", "installdep"]
     )
 

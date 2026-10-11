@@ -25,7 +25,7 @@ def log(msg: str):
     if TERMINAL and hasattr(TERMINAL, "_log"):
         TERMINAL._log(msg)
     else:
-        log(msg, flush=True)
+        print(msg, flush=True)
         
 def set_dirs(cfilearp, libfilearp):
     global LIB_FILE_ARP, C_FILE_ARP

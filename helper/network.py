@@ -85,9 +85,20 @@ def check_for_updates(local_version_path) -> str:
         response.raise_for_status()
 
         remote_version = response.text.strip()
+        
+        local_clean = local_version.replace(".", "").replace("v", "")
+        remote_clean = remote_version.replace(".", "").replace("v", "")
+        
+        try:
+            local_int = int(local_clean)
+            remote_int = int(remote_clean)
+        except ValueError:
+            # Fallback handling in case of an unusual string structure
+            local_int, remote_int = 0, 0
 
-        # 4. Compare the versions
-        if local_version != remote_version:
+        if local_int > remote_int:
+            return f"Modified version detected! Local: {local_version} -> Remote: {remote_version}"
+        elif local_int < remote_int:
             return f"Update available! Local: {local_version} -> Remote: {remote_version}"
         else:
             return f"You are up to date! Current version: {local_version}"

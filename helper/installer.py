@@ -7,6 +7,7 @@ import os
 import sys
 import shutil
 import platform
+import sysconfig
 
 C_FILE_WIFI = None
 LIB_FILE_WIFI = None
@@ -141,8 +142,28 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
         "PREFIX",
         "/data/data/com.termux/files/usr"
     )
+    
+    python_include = sysconfig.get_path("include")
+    python_libdir = sysconfig.get_config_var("LIBDIR")
+    python_version_nodot = sysconfig.get_config_var("VERSION")
 
     flags = []
+    
+    if python_include and os.path.exists(python_include):
+        flags.append(f"-I{python_include}")
+
+    # 3. Safely locate and link the correct Python binary library file
+    if python_libdir and os.path.exists(python_libdir):
+        flags.append(f"-L{python_libdir}")
+
+    if python_version_nodot:
+        # Handles both standard 'python315' and free-threaded 'python315t' linking layouts
+        lib_suffix = "t" if sysconfig.get_config_var("Py_GIL_DISABLED") == 1 else ""
+        flags.append(f"-lpython{python_version_nodot}{lib_suffix}")
+
+    # 4. Handle Free-Threaded (GIL-disabled) preprocessor macros dynamically
+    if sysconfig.get_config_var("Py_GIL_DISABLED") == 1:
+        flags.append("-DPy_GIL_DISABLED=1")
 
     if module_name in SSL_REQUIRED:
         flags.extend([
@@ -155,17 +176,21 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
         flags.extend([
             "-pthread"
         ])
+        
+    perf_flags = [
+        "-march=native",  # Targets your phone's exact CPU feature set
+        "-mtune=native",  # Optimizes pipeline scheduling for your specific core design
+    ]
 
-    # High-performance flags for ARM/Android via Clang
     base_flags = [
         "clang",
         "-O3",
         "-shared",
         "-fPIC",
-        "-o", 
-        lib_target,
+        "-o", lib_target,
         c_source,
         *flags,
+        *perf_flags
     ]
 
     try:
@@ -191,7 +216,8 @@ def compile_c_module(c_source: str, lib_target: str, module_name: str):
         "-O2",
         "-shared",
         "-fPIC",
-        "-o", lib_target,
+        "-o", 
+        lib_target,
         c_source,
         *flags,
     ]

