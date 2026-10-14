@@ -206,7 +206,7 @@ if __name__ == "__main__":
     if msg:
         sbcli._log("[*] " + msg + "\n")
         
-    sbcli._log("Di mata nullSBH, kita lihat semua kelakuan kamu. Jangan mejadi kiriminal siber, karena KAMI TIDAK TOLERNASI.")
+    sbcli._log("Di mata nullSBH, kita lihat semua kelakukan kamu. Jangan mejadi kiriminal siber, karena KAMI TIDAK TOLERNASI.")
     sbcli._log("#MakeTheInternetSafeAgain #nullSBH #RedHat #JanganJadiKriminalSiber \n")
     
     start()
