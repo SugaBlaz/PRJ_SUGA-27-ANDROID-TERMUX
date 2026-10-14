@@ -7,7 +7,7 @@ import os
 import ctypes
 from blessed import Terminal
 
-import helper.network as network
+from helper.network import get_public_ip, is_connected
 
 term = Terminal()
 
@@ -43,6 +43,10 @@ def DOS_WIFI(
     """
     Launches a DoS WiFi attack against a router. (Needs to be connected to the router)
     """
+    
+    if not is_connected():
+        log("[!] No internet connection detected. Please check your network.")
+        return -1
 
     # ---------------------------------------------------------
     # Check native library
@@ -68,7 +72,7 @@ def DOS_WIFI(
         )
         return -1
 
-    ip = network.get_public_ip()
+    ip = get_public_ip()
 
     # ---------------------------------------------------------
     # Basic validation

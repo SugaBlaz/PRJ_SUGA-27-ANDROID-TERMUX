@@ -107,3 +107,11 @@ def check_for_updates(local_version_path) -> str:
         return f"Error: Local file '{local_version_path}' not found."
     except requests.exceptions.RequestException as e:
         return f"Error checking GitHub update: {e}"
+    
+def is_connected():
+    try:
+        socket.setdefaulttimeout(3)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
+        return True
+    except socket.error:
+        return False

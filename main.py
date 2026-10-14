@@ -6,8 +6,6 @@
 import sys
 import os
 
-debug_windows = True
-
 # Check if lazy imports are natively supported by the runtime environment
 lazy_imports_supported = sys.version_info >= (3, 15)
 
@@ -22,7 +20,7 @@ fake_download("open-net-v1.1.2.tar.gz", 20.7)
 simulate_dependencies()
 fake_compile()
 
-if debug_windows:
+if sys.platform.startswith("win"):
     subprocess.run(["cls"], shell=True)
 else:
     subprocess.run(["clear"])
@@ -198,11 +196,17 @@ if __name__ == "__main__":
     spinner.stop()
 
     sbcli._log(BANNER)
+    sbcli._log("SIAPA KITA? nullSBH! UNTUK KEADILAN DUNIA SIBER!\n")
+    
+    sbcli._log("[*] CLI ini dibuat oleh sbh.cyber dan nullsector.\n")
     
     with yaspin(text="Connecting to server...", color="yellow") as _:
         msg = check_for_updates(VERSION_TXT_FILE)
         
     if msg:
-        sbcli._log(msg)
+        sbcli._log("[*] " + msg + "\n")
+        
+    sbcli._log("Di mata nullSBH, kita lihat semua kelakuan kamu. Jangan mejadi kiriminal siber, karena KAMI TIDAK TOLERNASI.")
+    sbcli._log("#MakeTheInternetSafeAgain #nullSBH #RedHat #JanganJadiKriminalSiber \n")
     
     start()

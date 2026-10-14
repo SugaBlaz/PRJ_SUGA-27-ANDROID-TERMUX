@@ -6,7 +6,7 @@ import os
 import ctypes
 from tqdm import tqdm
 import time
-from blessed import Terminal
+from helper.network import is_connected
 from typing import Optional
 
 C_FILE_HTTP = None
@@ -50,6 +50,10 @@ def DOS_HTTP(
 ):
     """Launches a HTTP/S DoS attack against an website."""
     
+    if not is_connected():
+        log("[!] No internet connection detected. Please check your network.")
+        return -1
+        
     if num_threads is None:
         num_threads = os.cpu_count() or 4
 
