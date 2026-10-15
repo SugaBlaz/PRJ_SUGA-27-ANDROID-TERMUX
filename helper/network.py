@@ -9,13 +9,24 @@ import os
 import struct
 from concurrent.futures import ThreadPoolExecutor
 
-def get_public_ip():
+def get_public_ip() -> str:
     try:
         # Query the ipify API for a plain text IP response
         response = requests.get('https://api.ipify.org')
         return response.text
     except requests.RequestException as e:
         return "127.0.0.1"
+    
+def get_private_ip() -> str:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Finds the preferred local interface without sending application data
+        sock.connect(("192.0.2.1", 80))
+        return sock.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        sock.close()
     
 def interface_exists(interface_name):
     """Checks the Linux network subsystem directly for interface presence."""

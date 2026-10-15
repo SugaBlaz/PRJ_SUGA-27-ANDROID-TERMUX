@@ -7,7 +7,7 @@ import os
 import ctypes
 from blessed import Terminal
 
-from helper.network import get_public_ip, is_connected
+from helper.network import get_private_ip, is_connected
 
 term = Terminal()
 
@@ -72,7 +72,7 @@ def DOS_WIFI(
         )
         return -1
 
-    ip = get_public_ip()
+    ip = get_private_ip()
 
     # ---------------------------------------------------------
     # Basic validation
